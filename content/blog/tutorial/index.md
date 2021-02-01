@@ -11,6 +11,9 @@ Make sure you keep this information secret. So I created this project for demo p
 
 Don't touch any settings below here. Just creating the project should be all you need to do here.
 
+
+![alt text](./assets/Infura.png "Logo Title Text 1")
+
 [Show Infura website]
 
 Starting off, this is a minimal node.js application with index.js as the entry point. 
