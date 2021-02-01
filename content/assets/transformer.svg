@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:lucid="lucid" width="260"
+  height="170">
+  <g transform="translate(-580 -80)" lucid:page-tab-id="0_0">
+    <path
+      d="M683.6 126.26l114.18 21.84v59.8L683.6 230V126.26M659.84 171.63h23.76v11.57h-23.76v-11.57zM659.62 151.87L600 162.53v29.38l59.62 10.8v-50.83"
+      stroke="#5e5e5e" stroke-width="3" fill="#fff" />
+    <path d="M706.7 131.2v-26.65h-54.12M776 143.03v-38.48h36.3" stroke="#5e5e5e" stroke-width="3" fill-opacity="0" />
+    <path d="M812.3 100l7.7 4.55-7.7 4.55z" stroke="#5e5e5e" stroke-width="3" fill="#ccc" />
+    <use xlink:href="#a" transform="matrix(1,0,0,1,617.6,165) translate(4.240740740740741 17.77777777777778)" />
+    <defs>
+      <path fill="#333" d="M127-220V0H93v-220H8v-28h204v28h-85" id="b" />
+      <use transform="matrix(0.06172839506172839,0,0,0.06172839506172839,0,0)" xlink:href="#b" id="a" />
+    </defs>
+  </g>
+</svg>
