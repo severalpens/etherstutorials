@@ -3,53 +3,64 @@ title: Ethers tutorial
 date: "2021-02-02T22:40:32.169Z"
 description: A tutorial about Ethers.js.
 ---
-In this video I'm going to go through Ethers.js and show how to use it using a Node.js console application.
+This is an expedited tutorial on ethers.js using a node.js console application.
 
-Before you start you'll need an Infura Project ID and secret. So sign up there and create a new project.
+### Setup
 
-Make sure you keep this information secret. So I created this project for demo purposes and I'll delete it before posting this tutorial
+To start off I've set up a minimal node.js application with index.js as the entry point. 
+I've installed two packages: 
+* ethers
+* dotenv
 
-Don't touch any settings below here. Just creating the project should be all you need to do here.
+![alt text](./consoleapp1.png "Logo Title Text 1")
+
+I also created a .env file and as a starting point have added in some variables to be populated
+
+![alt text](./dotenvFile.png "Logo Title Text 1")
 
 
-![alt text](./assets/Infura.png "Logo Title Text 1")
+Before you start you'll need an Infura Project ID and secret. So sign up and create a new project.
 
-[Show Infura website]
+![alt text](./infura.png "Logo Title Text 1")
 
-Starting off, this is a minimal node.js application with index.js as the entry point. 
-I've installed these packages: ethers and dotenv.
+Make sure you keep this information secret. I created this project for demo purposes and I'll delete it before posting this tutorial
 
-[Show package.json]
+Don't touch any settings below. Just creating the project should be all you need to do.
 
-Once installed, I'll use the console app to generate a random ethereum blockchain address:
+![alt text](./infura2.png "Logo Title Text 1")
+
+Add the ProjectID and Secret to the dotenv file.
+
+
+### Generate Random Account
+
+First thing I'll demonstrate is using the console app to generate a random ethereum blockchain address:
 
  ```javascript
 require('dotenv').config();
 const ethers = require('ethers');
-const randomAccountRaw = ethers.Wallet.createRandom();
-console.log(randomAccountRaw);
-
+const randomAccount = ethers.Wallet.createRandom();
+console.log(randomAccount);
 ```
-```javascript
-console.log('To be added to .env file:');
-console.log(`account1_address=${tmp.address}`);
-console.log(`account1_privateKey=${tmp.privateKey}`);
-```
-I'll save the address to dotenv.
 
-Now to check its balance I'll need to connect via my Infura account
+Run the script ('npm start' in console terminal window)
 
-To do that I've added in these two lines:
+Get the address and privateKey from the generated account and add them to the .env file (account1).
 
-The provider in my connection to the rinkeby testnet blockchain via infrua.
-and A wallet object is created by passing in my account's private key and the provider object.
+Run the script again and add to the .env file (account2)
+
+
+### Get Account Balance
+
+To get the ETH balance of the account I'll need to connect to the blockchain via Infura.
+
+Replace the contents of index.js with the following
 
  ```javascript
+require('dotenv').config();
+const ethers = require('ethers');
 const provider = new ethers.providers.InfuraProvider('rinkeby', process.env.INFURA);
-```
 
-
- ```javascript
  //IIFE to handle async/await
  (async function () {
   const balanceRaw = await provider.getBalance(process.env.account1_address);
@@ -62,6 +73,7 @@ const provider = new ethers.providers.InfuraProvider('rinkeby', process.env.INFU
 })();
  ```
 
+The provider is my connection to the rinkeby testnet blockchain via infrua. The IIFE runs the the 'getBalance' function and parses the result.
 
 And as this shows there is a zero balance on the rinkeby testnet for this account.
 To get some monopoly money to play with on the rinkeby testnet go to https://faucet.rinkeby.io/ and follow the instructions.
