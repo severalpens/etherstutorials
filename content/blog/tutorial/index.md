@@ -9,8 +9,8 @@ This is an expedited tutorial on ethers.js using a node.js console application.
 
 To start off I've set up a minimal node.js application with index.js as the entry point. 
 I've installed two packages: 
-* ethers
-* dotenv
+* npm install ethers
+* npm install dotenv
 
 ![alt text](./consoleapp1.png "Logo Title Text 1")
 
@@ -32,7 +32,7 @@ Don't touch any settings below. Just creating the project should be all you need
 Add the ProjectID and Secret to the dotenv file.
 
 
-### Generate Random Account
+### Generate Random Accounts
 
 First thing I'll demonstrate is using the console app to generate a random ethereum blockchain address:
 
@@ -50,6 +50,17 @@ Get the address and privateKey from the generated account and add them to the .e
 Run the script again and add to the .env file (account2)
 
 
+### ETH Faucet
+
+Add some Ether to account1:
+
+Go to [faucet.rinkeby.io](https://faucet.rinkeby.io/) and follow the instructions to add ether.
+
+![faucet](./faucet.png "Faucet")
+
+Confirm your account has ether in it by going to [rinkeby.etherscan.io](https://rinkeby.etherscan.io)
+
+
 ### Get Account Balance
 
 To get the ETH balance of the account I'll need to connect to the blockchain via Infura.
@@ -59,59 +70,68 @@ Replace the contents of index.js with the following
  ```javascript
 require('dotenv').config();
 const ethers = require('ethers');
-const provider = new ethers.providers.InfuraProvider('rinkeby', process.env.INFURA);
+const {address, projectId, projectSecret } = process.env;
+
+// const provider = new ethers.providers.InfuraProvider('rinkeby', projectId);
+const provider = new ethers.providers.InfuraProvider('rinkeby', {projectId, projectSecret});
 
  //IIFE to handle async/await
  (async function () {
-  const balanceRaw = await provider.getBalance(process.env.account1_address);
+  const balanceRaw = await provider.getBalance(address);
   console.log(balanceRaw);
   const balanceInWei = parseInt(balanceRaw._hex);
   console.log(balanceInWei);
-	const ethBalance = balanceInWei * 0.000000000000000001;
-	const result = Math.round(ethBalance * 100) / 100;
-	console.log(result);
+	const ethBalanceRaw = balanceInWei * 0.000000000000000001;
+	const ethBalanceFinal = Math.round(ethBalanceRaw * 100) / 100;
+	console.log(ethBalanceFinal);
 })();
  ```
 
-The provider is my connection to the rinkeby testnet blockchain via infrua. The IIFE runs the the 'getBalance' function and parses the result.
+The provider is my Infura connection to the rinkeby testnet using my infuraProjectId.
 
-And as this shows there is a zero balance on the rinkeby testnet for this account.
-To get some monopoly money to play with on the rinkeby testnet go to https://faucet.rinkeby.io/ and follow the instructions.
- 
- [show faucet page]
+Also for ease of reference I have the address of the account that I want to query from the .env file.
 
-Once you have some fake ether you should see the balance when you re-run the script
+The IIFE runs the the 'getBalance' function and parses the result.
 
-[rerun balance script]
+I think there may be an ethers.utils function that can simplify this but I've just done it the long way.
 
-Next is to transfer between two addresses so I'll create another random address and transfer some ETH value:
+After running this, it should return the balance for account1.
 
- ```javascript
-require('dotenv').config();
-const ethers = require('ethers');
-const provider = new ethers.providers.InfuraProvider('rinkeby', process.env.INFURA);
-const wallet = new ethers.Wallet(process.env.privateKey, provider);
-//IIFE to handle async/await
-(async function () {
-	const balanceInWei = await this.provider.getBalance(address);
-	const wei = parseInt(balanceInWei._hex);
-	const eth = wei * 0.000000000000000001;
-	const result = Math.round(eth * 100) / 100;
-	console.log(result);
-})();
+
+### Contracts
+
+Go to [Remix](https://remix.ethereum.org/) and create a simple contract using [Solidity](https://en.wikipedia.org/wiki/Solidity).
+
+I'm going to demo two contracts at the same time. 
+
+I have a demo from Solidity [docs](https://docs.soliditylang.org/en/v0.8.0/introduction-to-smart-contracts.html#simple-smart-contract)
+
+
+```solidity
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity >=0.4.16 <0.9.0;
+
+contract SimpleStorage {
+    uint storedData;
+
+    function set(uint x) public {
+        storedData = x;
+    }
+
+    function get() public view returns (uint) {
+        return storedData;
+    }
+}
 ```
-Next is create and run a simple contract. So I'll go to Remix and create a simple contract using Solidity language.
-To learn Solidity go to solidity.com and hone your skills using remix.
 
-[show solidity & remix]
-
-Here's a Foo/Bar/Baz contract example and also here's an ERC20 example.
+And also an ERC20 simple contract [docs](https://docs.soliditylang.org/en/v0.8.0/introduction-to-smart-contracts.html#simple-smart-contract)
 
 ```solidity
 pragma solidity ^0.6.0;
 
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v3.3.0/contracts/token/ERC20/ERC20.sol";
 
+// Example class - a mock class using delivering from ERC20
 contract BasicToken is ERC20 {
   constructor(uint256 initialBalance) ERC20("Basic", "BSC") public {
     _mint(msg.sender, initialBalance);
@@ -121,83 +141,73 @@ contract BasicToken is ERC20 {
 }
 ```
 
-In remix you can compile and deploy these contracts on Rinkeby as long as you've got the Metamask browser extension installed and an account with Rinkeby ETH.  
+### Compile & Deploy in Remix
 
- [compile & deploy contracts in Remix]
- 
- Get the addresses and save them somewhere. They're just addresses so don't have to be kept secure but for convenience I'm going to store them in the .env file. 
- 
- [add contract addresses to .env]
- 
- Now we have the ERC20 contract deployed I can demonstrate the transfer of tokens:
- 
- ```javascript
- [TBA transfer of tokens]
- ```
+To get these contracts onto the Ethereum Rinkeby network via Remix:
 
-Lastly, instead of relying on Remix I'll show how to compile and deploy locally.
+Add [Metamask](https://metamask.io/) browser plugin and add the newly created accounts.
 
-First we'll install waffle to compile locally so we can work directly in the node.js project instead of remix
+Compile in [Remix](http://remix.ethereum.org) and deploy using 'Injected Web3' environment.
 
-[install ethereum-waffle]
 
-Add a waffle config file, create a contracts folder, add the contract then run the command to compile contracts:
 
-```
-waffle compile
-```
+### Compile & Deploy using Ethers & Waffle
 
-After this there should be a compiled contracts folder AKA an artifacts folder that will contain amongst other things the abi and bytecode.
+Install Waffle and compile the contracts using the instructions on their [getting started](https://ethereum-waffle.readthedocs.io/en/latest/getting-started.html) page:
 
-Now that we have the artifacts we can programmatically deploy the contracts. Let start with the FooBar contract to check that it works.
+* [Installation](https://ethereum-waffle.readthedocs.io/en/latest/getting-started.html#installation)
+* [External Dependency](https://ethereum-waffle.readthedocs.io/en/latest/getting-started.html#add-external-dependency)
+* [Compiling the Contract](https://ethereum-waffle.readthedocs.io/en/latest/getting-started.html#compiling-the-contract)
+
+
+The build folder should now contain JSON files that contain amongst other things the ABI and bytecode.
+
+Deploy the simpleStorage contract using the following code:
 
  ```javascript
 require('dotenv').config();
 const ethers = require('ethers');
-const provider = new ethers.providers.InfuraProvider('rinkeby', process.env.INFURA);
-const wallet = new ethers.Wallet(process.env.privateKey, provider);
-const fooBarArtifacts = require('./artifacts/foobar');
-const erc20Artifacts = require('./artifacts/basictoken');
+const {abi,bytecode} = require('./build/simplestorage.json');
+
+const {account1Address, privateKey, projectId, projectSecret } = process.env;
+const provider = new ethers.providers.InfuraProvider('rinkeby', {projectId, projectSecret});
+const wallet = new ethers.Wallet(privateKey, provider);
+const factory = new ethers.ContractFactory(abi, bytecode, wallet);
 
 //IIFE to handle async/await
 (async function () {
-  let contract = require;
-  let bytecode = JSON.parse(fooBarArtifacts.bytecode);
-  let provider = new ethers.providers.InfuraProvider('rinkeby',process.env.INFURA);
-  let wallet = new ethers.Wallet(process.env.privateKey, provider);
-  let factory = new ethers.ContractFactory(fooBarArtifacts.abi, fooBarArtifacts.bytecode, wallet);
  // let args = deploy.inputs.map(x => x.value);
  // let tx = await factory.deploy(...args);
+ let tx = await factory.deploy();
   await tx.deployed();
   console.log(tx);
 })();
 ```
-
-Put the contract address into the .env file. 
 
 Repeat this process for the ERC20 Basic Token.
 
  ```javascript
 require('dotenv').config();
 const ethers = require('ethers');
-const provider = new ethers.providers.InfuraProvider('rinkeby', process.env.INFURA);
-const wallet = new ethers.Wallet(process.env.privateKey, provider);
-const fooBarArtifacts = require('./artifacts/foobar');
-const erc20Artifacts = require('./artifacts/basictoken');
+const {abi,bytecode} = require('./build/BasicToken.json');
+const {account1Address, privateKey, projectId, projectSecret } = process.env;
+
+const provider = new ethers.providers.InfuraProvider('rinkeby', {projectId, projectSecret});
+const wallet = new ethers.Wallet(privateKey, provider);
+const factory = new ethers.ContractFactory(abi, bytecode, wallet);
 
 //IIFE to handle async/await
 (async function () {
-  let contract = require;
-  let bytecode = JSON.parse(fooBarArtifacts.bytecode);
-  let provider = new ethers.providers.InfuraProvider('rinkeby',process.env.INFURA);
-  let wallet = new ethers.Wallet(process.env.privateKey, provider);
-  let factory = new ethers.ContractFactory(fooBarArtifacts.abi, fooBarArtifacts.bytecode, wallet);
  // let args = deploy.inputs.map(x => x.value);
  // let tx = await factory.deploy(...args);
+
+ let constructorArgs = [1000];
+ let tx = await factory.deploy(constructorArgs);
   await tx.deployed();
   console.log(tx);
 })();
 ```
+
 
 
 
